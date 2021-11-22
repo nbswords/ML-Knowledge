@@ -2,8 +2,12 @@
 tags: 'ML notes'
 ---
 
-# 機器學習面試問題
+# 機器學習面試
 
+[Toc]
+
+![](https://i.imgur.com/3FRxtwt.jpg)
+[Img source](https://towardsdatascience.com/types-of-machine-learning-interviews-and-how-to-ace-them-51587a95f847)
 
 ## GPU
 ### 為什麼 GPU 可以加速矩陣運算?
@@ -469,6 +473,7 @@ MSE & MAE: 考慮的是絕對誤差，MSPE & MAPE: 考慮的是相對誤差
 [Data Splitting for Model Evaluation](https://towardsdatascience.com/data-splitting-for-model-evaluation-d9545cd04a99)
 
 #### Imbalanced Dataset
+*Question: What problem may arise if we randomly split a dataset that has 99% negative class and 1% positive class?*
 - 最好使用 stratify 的方式來將資料切割為 class 數量一樣的 train/test split
 - 即使不是不平衡資料集也可以做，這樣可以確保 training 和 testing dataset 有類似的資料分布
 ```python=
@@ -479,15 +484,24 @@ X, y, test_size=0.33, random_state=42, stratify=y)
 ```
 
 #### Limited Data
+*Question: In experiments with limited data, what could be a possible model evaluation issue if we perform a simple train-test split?*
 - 可以利用 K-Fold CV 來解決資料較為不足的情況
 ![](https://i.imgur.com/s2Vozh8.png)
 
 #### Feature Engineering Leakage
-
+*Question: What’s wrong with standardizing on the whole data before doing a train-test split?*
 - 假如我們在做資料分割之前就對整個資料做標準化，就會造成 data leakage，因為我們會透過 mean 以及 std 將 testing data 的特性洩漏給 training data
 - 除此之外另一個常見的則是對整個資料做 Hot deck imputation
 
+#### Group Leakage
+*Question: If there are patient overlaps between the train, validation, and test sets, why might the model performance be greatly overestimated?*
 
+- 要改用 object identifier 來切割資料，而不是 data points，這樣同一個物件所產生的資料只會存在於 training　data 或是 testing data
+
+#### Time Leakage
+*Question: Any issue with randomly splitting a time series data?*
+
+- 按照時間順序進行 train/test 切割 (以較舊資料作為 train, 較新資料作為 test)，或是使用 walk-forward validation
 
 ## Tensorflow / Pytorch
 
@@ -1068,7 +1082,7 @@ Type I and Type II error :
   - 其實就是先算出 k-nearest neighbors，然後依據其結果來算出每個點的 LOF
   - outlier 佔資料集的比例越高，k的值就會需要越大
 
-判斷標準
+判斷標
 - LOF ~ 1  =>  Similar data point
 - LOF < 1  =>  Inlier ( similar data point which is - inside the density cluster)
 - LOF > 1  =>  Outlier
@@ -1086,7 +1100,7 @@ Type I and Type II error :
 需要做 feature scaling 的演算法
 ![](https://i.imgur.com/SQ7xYz7.png)
 - 對於不需要距離的演算法，feature scaling 不重要
-  -  像是 Naive Bayes, Linear Discriminant Analysis, and Tree-Based models (gradient boosting, random forest, etc. 
+  -  像是 Naive Bayes, Linear Discriminant Analysis, and Tree-Based models (gradient boosting, random forest 
 
 #### Standardization (Z-score normalization)
 - 中心標準化方法
@@ -1212,140 +1226,6 @@ $\text{AP} = \sum_n (R_n - R_{n-1}) P_n$
 - $PMI(x;y) = \log{\frac{p(x,y)}{p(x)p(y)}}$
   - Pointwise Mutual Information(PMI)
   - Relevance of two events $x$ and $y$
-
-## Useful Python
-
-- Generator for a Range()
-  - Generator 是用來建立 iterator
-```python=
-def range(start, end, step):
-    cur = start
-    while cur > end:
-        yield cur
-        cur += step
-```
-
-- Decorators
-  - 用來修改函式行為
-```python=
-
-def print_func_name(func):
-    def warp():
-        print("Now use function '{}'".format(func.__name__))
-        func()
-    return warp
-
-
-@print_func_name
-def dog_bark():
-    print("Bark !!!")
-
-
-@print_func_name
-def cat_miaow():
-    print("Miaow ~~~")
-
-
-if __name__ == "__main__":
-    dog_bark()
-    # > Now use function 'dog_bark'
-    # > Bark !!!
-
-    cat_miaow()
-    # > Now use function 'cat_miaow'
-    # > Bark !!!
-```
-
-
-- :=
-```python=
-Mylist = [1,2,3]
-if(l := len(mylist) > 2)
-print(l)
-# Output :
-# 3
-```
-- Reversing a string
-```python=
-str=”hello world!”
-a=str[::-1]
-print(a)
-# Output :
-# !dlrow olleh
-```
-- Merging two dictionaries
-```python=
-d1 = {“a”: 10, “b”:20}
-d2 = {“c”: 30, “d”:40}
-d3 = {**d1, **d2}
-print(d3)
-# Output :
-# {‘a’: 10, ‘b’: 20, ‘c’: 30, ‘d’: 40}
-```
-- The zip() function
-```python=
-colour = [“red”, “yellow”, “green”]
-fruits = [‘apple’, ‘banana’, ‘mango’]
-for colour, fruits in zip(colour, fruits):
-print(colour, fruits)
-# Output :
-# red apple
-# yellow banana
-# green mango
-```
-- Remove duplicate list items
-```python=
-mylist = [1,1,1,2,2,3,3,4,4,5,6,7,7,8,9]
-newlist = set(mylist)
-print(newlist)
-# Output :
-# {1, 2, 3, 4, 5, 6, 7, 8, 9}
-```
-- Swapping variable value
-```python=
-a = 100
-b = 200
-a,b = b,a
-print(f’a = ‘,a)
-print(f’b = ‘,b)
-# Output :
-# a = 200
-# b = 100
-```
-
-- List Comprehension
-```python=
-fruits = ["apple", "banana", "cherry", "kiwi", "mango"]
-
-# 把fruits中包含a的assign給x,  而x在iterate完之後會再assign給newlist
-newlist = [x for x in fruits if "a" in x]
-
-print(newlist)
-# Output :
-# ['apple', 'banana', 'mango']
-```
-  - Looping Using List Comprehension
-  ```python=
-  thislist = ["apple", "banana", "cherry"]
-  [print(x) for x in thislist] # 在每一個iterate都會執行print(x)
-# Output :
-# apple
-# banana
-# cherry
-  ```
-
-- *args 和 **kwargs
-  - args 用來存 unnamed arguments
-  - kwargs 用來存 named arguments
-```python=
-def func1(*args, **kwargs):
-    print(args)
-    print(kwargs)
-
-func1(1, 'abc', lol='lmao')
-> [1, 'abc']
-> {"lol": "lmao"}
-```
 
 ## Take-home Exercise
 
