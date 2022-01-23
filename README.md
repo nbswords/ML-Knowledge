@@ -2,7 +2,9 @@
 tags: 'ML notes'
 ---
 
-# 機器學習面試
+# 機器學習知識庫
+
+面試導向的機器學習筆記
 
 [Toc]
 
@@ -338,7 +340,7 @@ Bias-Variance TTradeoff
 
 ### Overfitting
 
-ovefitting : traing error 低但 testing error 高
+Ovefitting : training error 低但 testing error 高
 
 原因 : 
 1. 模型過於複雜 (模型容量過高)
@@ -351,23 +353,24 @@ ovefitting : traing error 低但 testing error 高
 4. 在不改參數和層數的情況下做 Dropout
 5. 在不改參數和層數的情況下做 Regularization
 
+
+
+### Regularization (正規化)
 [Regularization 方法 : Weight Decay , Early Stopping and Dropout](https://hackmd.io/@allen108108/Bkp-RGfCE)
+
 [Lasso vs Ridge vs Elastic Net | ML
 ](https://www.geeksforgeeks.org/lasso-vs-ridge-vs-elastic-net-ml/)
 
 [Regularization in ML](https://towardsdatascience.com/types-of-regularization-in-machine-learning-eb5ce5f9bf50)
-
-- Regularization (正規化)
-
-    - Weight decay(權重衰減) : Lasso and Ridge regression
-        - 就是 L1 / L2 Regularization
-        - 用來判斷模型的複雜度並加以懲罰
-        - 越大的weight懲罰就越大，越小的weight懲罰就越小
-            - L1, Lasso 當n很小時至多只能選出n個變量，而且無法處理 group selection，也就是說當有一群參數之間的 pairwise correlations 很強的時候，Lasso 只會從這群參數中取一個出來 
-            - L2, Ridge 減少模型複雜度但沒有減少參數的個數，係數永遠不會是0，不能用來做 feature reduction
-    - 為什麼加入 L1 / L2 就會造成 Weight decay ?
-        - L2 在進行參數更新的時候會乘上(1−2ηλ)，其值小於1，必定會使參數遞減並往0靠近
-    - L1 + L2 的結合 = Elastic Net，解決兩者缺點
+#### Weight decay(權重衰減) : Lasso and Ridge regression
+- 就是 L1 / L2 Regularization
+- 用來判斷模型的複雜度並加以懲罰
+- 越大的weight懲罰就越大，越小的weight懲罰就越小
+    - L1, Lasso 當n很小時至多只能選出n個變量，而且無法處理 group selection，也就是說當有一群參數之間的 pairwise correlations 很強的時候，Lasso 只會從這群參數中取一個出來 
+    - L2, Ridge 減少模型複雜度但沒有減少參數的個數，係數永遠不會是0，不能用來做 feature reduction
+- 為什麼加入 L1 / L2 就會造成 Weight decay ?
+    - L2 在進行參數更新的時候會乘上(1−2ηλ)，其值小於1，必定會使參數遞減並往0靠近
+- L1 + L2 的結合 = Elastic Net，解決兩者缺點
 ![](https://i.imgur.com/YAfg2Pk.jpg)
 ![](https://i.imgur.com/BnVE25T.jpg)
 ![](https://i.imgur.com/Gg9SZ8m.jpg)
@@ -377,25 +380,35 @@ ovefitting : traing error 低但 testing error 高
     <img src="https://i.imgur.com/aAc4tGl.png" width="400">
 </center>
 
-- Early Stopping
+#### Early Stopping
   - 判斷何時需要停止訓練，圖中　$d^*_{vc}$ 為最佳停止時間 
     ![](https://i.imgur.com/K4Roa4W.png)
     
-- Dropout
+#### Dropout
   - 在每一層隨機停用某部分(p%)的神經元 
   - 當這些利用 p% 所訓練出來的權重要拿到 test data 評估的時候，因為 testing 的時候不使用 Dropout，所以 testing 時所有權重要乘上 (1-p)%
 ![](https://i.imgur.com/YFeWGB7.png)
 
+
+#### 其他 regularization 方法
+
+- Stochastic Depth
+- Label Smoothing
+- Layer Scale
+
 ### Batch Normalization
 
 [batch normalization in 3 level](https://towardsdatascience.com/batch-normalization-in-3-levels-of-understanding-14c2da90a338)
-
+![](https://i.imgur.com/pppjMSE.png)
 - Batch Normalization 的作法是對每一個 mini-batch 都進行正規化到平均值為0、標準差為1的常態分佈
+  - **適合使用在 MLP 或是 CNN 之上，不適用在 RNN 或是 batch size 小的情況上**，因為其 batch 中的資訊並沒有辦法反映在全局的統計分布上
 - 這樣可以把分散的數據統一，有助於減緩梯度消失以及解決 Internal Covariate Shift 的問題，同時可以加速收斂，並且有正則化的效果 (可以不使用Dropout)
+  - γ and β 為控制 linear/affine transformation 的可學習參數，在 [Pytorch](https://pytorch.org/docs/stable/generated/torch.nn.BatchNorm2d.html#torch.nn.BatchNorm2d) 中可透過 `affine` = true / false 來開關
+![](https://i.imgur.com/7eIU1Oc.jpg)
+
 - 經過 Normalization 之後的數據在通過激活函數後，可以得到分佈較為平均的輸出
 ![](https://i.imgur.com/6zDexYJ.png)
 ![](https://i.imgur.com/NdzE2Rs.jpg)
-
 
 優點 : 
 1. 減緩梯度消失的問題
@@ -404,25 +417,136 @@ ovefitting : traing error 低但 testing error 高
 4. 具有正則化效果
 
 缺點 :
-[NFNets](https://arxiv.org/abs/2102.06171)
+來自 [NFNets](https://arxiv.org/abs/2102.06171) 的論點
 1. 在計算平均數和標準差時，需要將其值保存在記憶體中，除了會增加記憶體使用量(計算成本)，也增加了網路評估梯度的時間
-2. 造成模型訓練和推理時的差異，代表 BN 引入了必須調整的隱藏超參數。
-3. 破壞了 minibatch 的訓練資料間的獨立性，因此在 minibatch 中選擇哪些樣本變得很重要。
+2. 造成模型訓練和推論時的差異，代表 BN 引入了必須調整的隱藏超參數
+3. 破壞了 minibatch 的訓練資料間的獨立性，因此在 minibatch 中選擇哪些樣本變得很重要
 
 因此造成
-1. 難以進行分布式訓練 (容易造成資料洩漏)
-2. Batch size 不能太小，會很不穩定，通常BN只能用在大的模型上
+1. 難以進行分布式訓練 (因為 Train-test inconsistency 容易造成資料洩漏)
+2. Batch size 不能太小，會很不穩定，通常BN只能用在大模型上，也因此導致許多需要大量 gpu 記憶體的 tasks( Detection, segmentation, video) 無法使用 BN
+   - 此時可改用 [Group Normalization, 2018](https://arxiv.org/abs/1803.08494)
 
-#### 如何改善 batch norm 問題?
+除此之外，在 [Rethinking “Batch” in BatchNorm, 2021](https://arxiv.org/pdf/2105.07576.pdf) 中也提出更多 BN 的缺點，比如 batch 的概念較模糊因此實作方法多、實作上容易有 bug 等等
+
+#### 如何改善 Batch Norm 問題?
 
 [Exploring Adaptive Gradient Clipping and NFNets](https://wandb.ai/ayush-thakur/nfnet/reports/Exploring-Adaptive-Gradient-Clipping-and-NFNets--Vmlldzo1MDc0NTQ)
 
-- NFNet中提出了自適應梯度修剪（Adaptive Gradient Clipping，AGC）方法，是基於梯度範數與參數範數的單位比例來裁切梯度
+- [NFNet, 2021](https://arxiv.org/abs/2102.06171) 中提出了自適應梯度修剪（Adaptive Gradient Clipping，AGC）方法，是基於梯度範數與參數範數的單位比例來裁切梯度
   - 利用 history of gradient norms 去設定 clipping value
   - choose a percentile $p$ instead of a absolute value as clipping threshold
   - AGC 可以訓練更大 Batch size 和大規模數據增強的非歸一化網絡，但訓練穩定性會對 λ 特別敏感
 ![](https://i.imgur.com/GY10SpH.jpg)
 
+
+### Layer Normalization, Instance Normalization, Group Normalization, 
+[In-layer normalization techniques for training very deep neural networks](https://theaisummer.com/normalization/)
+![](https://i.imgur.com/ZkM0SdM.png)
+![](https://i.imgur.com/dERQg9m.jpg)
+
+
+#### Layer normalization
+- 首次於 [2016年](https://arxiv.org/abs/1607.06450) 被提出
+  - 一開始是用來處理 vector (大多是 RNN 的輸出)，但一直默默無名，直到 transformers 出現之後才又被積極討論
+  - **除了 RNN 與 Attention 以外也適合使用在 batch size 較小的任務上**
+- 跨越所有 channels 以及 spatial dimension 將每一個 feature 的 activations 正規化到 zero mean and unit variance
+  - **獨立於 batch 之外 (Batch independent)** 為其最重要的特性
+![](https://i.imgur.com/m6iSv4Q.png)
+
+算法:
+- γ and β 為控制 linear/affine transformation 的可學習參數，在 [Pytorch](https://pytorch.org/docs/stable/generated/torch.nn.LayerNorm.html#torch.nn.LayerNorm) 中可透過 `elementwise_affine` = true / false 來開關
+![](https://i.imgur.com/6x1Rj09.jpg)
+
+#### Instance normalization
+- 與 LN 一樣在 [2016](https://arxiv.org/abs/1607.08022) 被提出，IN 主要應用在特徵較密集的電腦視覺領域以及每一個 pixels 都有用處的演算法上 (例如 GAN)
+  - **不建議被用在 (1) MLP 或 RNN，因為其一個 channel 上只有一個資料 (2) feature map 較小時**
+- 只在單一個 channel、單一個樣本中每個 feature 的空間維度之中計算
+  - **獨立於 channel 和不同樣本之外 (independent for each channel and sample)**
+![](https://i.imgur.com/Oezntqt.png)
+- 本質上就是在 normalize features，因此可用來改變一張圖片的風格 (透過可學習參數 $\gamma$ 和 $\beta$)
+
+算法:
+  - 其實就只是把 BN 中的 $\mu$ 和 $\sigma$ 去掉 $N$
+  - γ and β 為控制 linear/affine transformation 的可學習參數，在 [Pytorch](https://pytorch.org/docs/stable/generated/torch.nn.InstanceNorm1d.html#torch.nn.InstanceNorm1d) 中可透過 `affine` = true / false 來開關
+![](https://i.imgur.com/2HlNxGT.jpg)
+
+#### Group normalization
+- 於 [2018](https://arxiv.org/abs/1803.08494) 被提出，應用在圖片分類、物件偵測、物件分割等視覺任務上
+- GN 把channel 分成 num_group 個 group 並分開個別對其做 normalization (算出個別的 mean 和 var)
+  - 一樣**獨立於 batch 之外**
+  - num_group 為一個可調的超參數，num_group=1 就是 LN
+![](https://i.imgur.com/KwOfHr7.png)
+- 在各種不同的 batch size 下，GN 擁有比 BN 更穩定的準確率
+![](https://i.imgur.com/HnLUCEv.jpg)
+
+算法:
+  - $G$ = num_group，超參數，論文中以 G=32 做為預設參數
+  - $C/G$ =  number of channels per group
+  - $S_i$ = 第 $i$ 個 Set
+  - GN computes µ and σ along the (H, W) axes and along a group of C/G channels
+  - γ and β 為控制 linear/affine transformation 的可學習參數，在 [Pytorch](https://pytorch.org/docs/stable/generated/torch.nn.GroupNorm.html#torch.nn.GroupNorm) 中可透過 `affine` = true / false 來開關
+![](https://i.imgur.com/KrqMLGd.jpg)
+![](https://i.imgur.com/QXQIpCp.jpg)
+
+
+### Learning Rate Schedules
+
+[Pytorch optIM](https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate)
+
+[Guide to Pytorch learning rate scheduling](https://www.kaggle.com/isbhargav/guide-to-pytorch-learning-rate-scheduling)
+
+#### LinearLR: 用兩個 multiplicative factor，一個作為起始，另一個作為終點來線性衰減學習率直到 total_inters
+- `scheduler = LinearLR(self.opt, start_factor=0.5, total_iters=4)`
+
+#### ExponentialLR: 用一個固定的 Multiplicative factor `gamma` 來衰減每個 epoch 的學習率
+- `torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma)`
+![](https://i.imgur.com/0wYjKqa.png)
+
+#### CosineAnnealing: 透過餘弦退火可以讓學習率先緩降->再驟降->最後緩降
+- `torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max, eta_min=0)`
+    - T_max: 最多迭代次數
+    - eta_min: 最小學習率
+![](https://i.imgur.com/Ay8msGd.png)
+- 學習率一個週期(完成一次 epochs=50 的訓練)的變化
+![](https://i.imgur.com/7GP73Bf.png)
+- Implementation
+```python=
+global_step = min(global_step, decay_steps)
+cosine_decay = 0.5 * (1 + cos(pi * global_step / decay_steps))
+decayed = (1 - alpha) * cosine_decay + alpha
+decayed_learning_rate = learning_rate * decayed
+```
+
+#### CosineAnnealingWarmRestarts: 週期性的使用 cosine annealing
+- `torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(optimizer, T_0, T_mult=1, eta_min=0)`
+   - T_0: First restart 後的迭代次數
+   - T_mult: 在 restart 後增加迭代次數的 multiplicative factor，預設為1
+   - eta_min: 最小學習率
+![](https://i.imgur.com/iV5NzvD.png)
+
+- 週期性的使用 cosine annealing 所形成的學習率變化
+
+![](https://i.imgur.com/t21inCG.png)
+#### CyclicLR: 根據 cyclical learning rate policy (CLR) 在一個設定好的區間內以 constant frequency 來循環學習率
+- `torch.optim.lr_scheduler.CyclicLR(optimizer, base_lr, max_lr)`
+- base_lr 和 max_lr 會決定學習率循環的區間
+- 分為三種循環方式：triangular, triangular2, exp_range, 預設參數為mode='triangular'
+1. triangular
+![](https://i.imgur.com/lpGnSXV.png)
+2. triangular2
+![](https://i.imgur.com/7LQzvMy.png)
+3. exp_range
+![](https://i.imgur.com/duOZRRd.png)
+
+#### OneCycleLR: 根據 1cycle learning rate policy 來從初始學習率退火到一個最大學習率，再從這個最大學習率退火到一個比初始學習率還小的最小學習率
+- `torch.optim.lr_scheduler.OneCycleLR(optimizer, max_lr=0.01, steps_per_epoch=len(data_loader), epochs=10)`
+- total_steps = epochs * steps_per_epoch，要嘛就指定 step_per_epoch 要嘛就指定 total_steps
+- 退火策略有兩種可以選: linear 和 consine，預設參數為 anneal_strategy='cos'
+1. consine
+![](https://i.imgur.com/rgV2mHl.png)
+2. linear
+![](https://i.imgur.com/dkhKYfj.png)
 
 ### Loss
 #### Regression Loss
@@ -506,6 +630,8 @@ X, y, test_size=0.33, random_state=42, stratify=y)
 ## Tensorflow / Pytorch
 
 [浅谈 PyTorch 中的 tensor 及使用](https://zhuanlan.zhihu.com/p/67184419)
+[PyTorch 指南：17個技巧讓你的深度學習模型訓練變得飛快！
+](https://bangqu.com/Ya9W74.html)
 
 
 - torch.no_grad()
@@ -1015,10 +1141,13 @@ Type I and Type II error :
     - 如果卜瓦松分配適合表示某一個區間內事件發生次數的機率，指數分配就可以描述二次事件發生的時間間隔的機率 
     - 比如說，若乘客抵達人數是卜瓦松分布，則乘客之間抵達的時間間隔就會是指數分布 ![](https://i.imgur.com/UTu2S3Y.png)
 
-### 離群值檢測 Outlier Check
+### 離群值檢測 Outlier Check / Anomaly Detection
 - 也稱異常值檢測 (Anomaly dectection)
 
-[Outlier Check for Dataset](https://datatest.readthedocs.io/en/stable/how-to/outliers.html#example-usage) [Multi-variate outlier detection in Python](https://towardsdatascience.com/multi-variate-outlier-detection-in-python-e900a338da10)
+[Outlier Check for Dataset](https://datatest.readthedocs.io/en/stable/how-to/outliers.html#example-usage) 
+[Multi-variate outlier detection in Python](https://towardsdatascience.com/multi-variate-outlier-detection-in-python-e900a338da10)
+[5 Anomaly Detection Algorithms every Data Scientist should know](https://towardsdatascience.com/5-anomaly-detection-algorithms-every-
+
 
 用在
 1. 資料前處理
@@ -1082,7 +1211,7 @@ Type I and Type II error :
   - 其實就是先算出 k-nearest neighbors，然後依據其結果來算出每個點的 LOF
   - outlier 佔資料集的比例越高，k的值就會需要越大
 
-判斷標
+判斷標準
 - LOF ~ 1  =>  Similar data point
 - LOF < 1  =>  Inlier ( similar data point which is - inside the density cluster)
 - LOF > 1  =>  Outlier
